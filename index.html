@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TTU Rockwall</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
+
+    <style>
+        /* Custom styles to match the hand-drawn feel of the sketch boxes */
+        .logo-box {
+            width: 50px;
+            height: 50px;
+            border: 2px solid black;
+        }
+        /* Gives our main boxes the structured look from your sketch */
+        .sketch-box {
+            border: 2px solid black;
+            border-radius: 5px;
+            padding: 20px;
+            height: 100%;
+        }
+        /* Remove underline from links but keep them clickable */
+        .clean-link {
+            text-decoration: none;
+            color: inherit;
+        }
+        .clean-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    
+    <div class="row align-items-center mb-4 pb-3 border-bottom border-dark">
+        <div class="col-auto">
+            <div class="logo-box"></div>
+        </div>
+        <div class="col">
+            <h4 class="mb-0">TTU Rockwall</h4>
+        </div>
+        <div class="col-auto">
+            <button id="loginBtn" class="btn btn-outline-dark px-4">Login</button>
+        </div>
+    </div>
+
+    <div class="row mb-5 text-center">
+        
+        <div class="col-md-4 mb-3">
+            <div class="sketch-box d-flex flex-column justify-content-center">
+                <h5>Current Visitors:</h5>
+                <a href="#" id="visitorsLink" class="fs-2 text-info text-decoration-none">8 / 20</a>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="sketch-box d-flex align-items-center justify-content-center">
+                <button id="signupBtn" class="btn text-success border border-success rounded-pill px-4 py-2">
+                    Signup for priority access
+                </button>
+            </div>
+        </div>
+
+        <div class="col-md-4 mb-3">
+            <div class="sketch-box text-start">
+                <h5 class="mb-3">Upcoming Events:</h5>
+                <ul class="list-unstyled mb-0">
+                    <li class="mb-2">
+                        - <a href="https://recreation.tntech.edu/Program?classificationId=41963321-bd55-41c8-af8e-cd07559ba06b" target="_blank" class="clean-link">
+                            Bouldering Basics: 4:00 pm
+                        </a>
+                    </li>
+                    <li>
+                        - <a href="https://recreation.tntech.edu/Program?classificationId=41963321-bd55-41c8-af8e-cd07559ba06b" target="_blank" class="clean-link">
+                            Top Rope Belay Clinic: 6:00 pm
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="row align-items-center pt-3 border-top border-dark">
+        <div class="col-md-4 text-start">
+            <span id="currentDateTime" class="fw-bold"></span>
+        </div>
+        <div class="col-md-4 text-center">
+            <span class="fw-bold">Today's Hours: 3 PM - 8 PM</span>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="#" id="fullHoursBtn" class="clean-link text-primary fw-bold">Full Active Hours</a>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+    // ---------------------------------------------------------
+    // 1. Live Date and Time Updater
+    // ---------------------------------------------------------
+    function updateDateTime() {
+        const now = new Date();
+        // Formatting the date (e.g., Thursday, April 9, 2026)
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        // Formatting the time (e.g., 3:28 PM)
+        const timeOptions = { hour: 'numeric', minute: '2-digit' };
+        
+        const dateString = now.toLocaleDateString(undefined, dateOptions);
+        const timeString = now.toLocaleTimeString(undefined, timeOptions);
+        
+        // Injecting the combined string into the bottom-left element
+        document.getElementById('currentDateTime').innerText = `${dateString} | ${timeString}`;
+    }
+    
+    // Call it immediately so there's no delay, then update every 60 seconds
+    updateDateTime();
+    setInterval(updateDateTime, 60000);
+
+    // ---------------------------------------------------------
+    // 2. Login Button Functionality (SweetAlert Prototype)
+    // ---------------------------------------------------------
+    document.getElementById('loginBtn').addEventListener('click', function() {
+        // Swal.fire takes (Title, Text, Icon Type)
+        Swal.fire(
+            'Notice',
+            'Redirecting to login screen planned in-future!',
+            'info'
+        );
+    });
+
+    // ---------------------------------------------------------
+    // 3. Current Visitors Functionality (SweetAlert Prototype)
+    // ---------------------------------------------------------
+    document.getElementById('visitorsLink').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevents the link from scrolling to the top of the page
+        
+        // Creating prototype list of guests currently at the wall
+        let visitorsHTML = `
+            <div style="text-align: left;">
+                <p><strong>Guest 1</strong> - Active time: 1h15m</p>
+                <p><strong>Guest 2</strong> - Active time: 0h45m</p>
+                <p><strong>Guest 3</strong> - Active time: 2h00m</p>
+                <p><strong>Guest 4</strong> - Active time: 0h10m</p>
+                <p><strong>Guest 5</strong> - Active time: 1h30m</p>
+                <p><strong>Guest 6</strong> - Active time: 0h25m</p>
+                <p><strong>Guest 7</strong> - Active time: 1h05m</p>
+                <p><strong>Guest 8</strong> - Active time: 0h55m</p>
+            </div>
+        `;
+
+        Swal.fire({
+            title: 'Active Climbers (Prototype)',
+            html: visitorsHTML, // Using html parameter to pass our formatted list
+            icon: 'users',
+            confirmButtonText: 'Close'
+        });
+    });
+
+    // ---------------------------------------------------------
+    // 4. Signup Button Functionality (SweetAlert Prototype)
+    // ---------------------------------------------------------
+    document.getElementById('signupBtn').addEventListener('click', function() {
+        Swal.fire(
+            'Priority Access',
+            'Redirecting to appointment creation page (Prototype placeholder)',
+            'success'
+        );
+    });
+
+    // ---------------------------------------------------------
+    // 5. Full Active Hours Functionality (SweetAlert Prototype)
+    // ---------------------------------------------------------
+    document.getElementById('fullHoursBtn').addEventListener('click', function(e) {
+        e.preventDefault(); // Prevent default link jump
+        
+        // HTML table containing real TTU Rockwall Hours data
+        let hoursHTML = `
+            <table class="table table-bordered text-start mt-3">
+                <tbody>
+                    <tr><th>Monday</th><td>3 PM - 8 PM</td></tr>
+                    <tr><th>Tuesday</th><td>3 PM - 8 PM</td></tr>
+                    <tr><th>Wednesday</th><td>3 PM - 8 PM</td></tr>
+                    <tr><th>Thursday</th><td>3 PM - 8 PM</td></tr>
+                    <tr><th>Friday</th><td>2 PM - 6 PM</td></tr>
+                    <tr><th>Saturday</th><td>2 PM - 6 PM</td></tr>
+                    <tr><th>Sunday</th><td>Closed</td></tr>
+                </tbody>
+            </table>
+        `;
+
+        Swal.fire({
+            title: 'Rockwall Active Hours',
+            html: hoursHTML,
+            icon: 'time',
+            confirmButtonText: 'Close'
+        });
+    });
+</script>
+
+</body>
+</html>
