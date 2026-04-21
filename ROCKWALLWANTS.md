@@ -1,5 +1,7 @@
 Writing down the functional details we need for the rockwall site.
 
+
+1. Main page gives information regarding the rockwall including current capacity, times, updates on the settings of walls, 
 1. First screen is a login, check for either a student account or an administration account when loging in.
  1a. New accounts can sign up. New accounts cannot be admin accounts, admin permissions are added to the database directly.
 
