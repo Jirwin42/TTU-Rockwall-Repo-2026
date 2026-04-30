@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,44 +7,83 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css" rel="stylesheet">
     <style>
-        .logo-box { width: 50px; height: 50px; border: 2px solid black; }
-        .sketch-box { border: 2px solid black; border-radius: 5px; padding: 20px; height: 100%; }
+        /* TN Tech Theme Colors */
+        :root {
+            --ttu-purple: #4f2683;
+            --ttu-gold: #fdb913;
+        }
+
+        body { transition: background-color 0.3s, color 0.3s; }
+        
+        /* Admin Theme - Complementary Gold/Dark */
+        body.admin-theme {
+            background-color: #2c2a29; /* Dark background for contrast */
+            color: var(--ttu-gold);
+        }
+        body.admin-theme .sketch-box, body.admin-theme .card {
+            background-color: #3d3b3a;
+            border-color: var(--ttu-gold);
+            color: white;
+        }
+        body.admin-theme .border-dark { border-color: var(--ttu-gold) !important; }
+
+        .logo-box { width: 50px; height: 50px; border: 2px solid var(--ttu-purple); border-radius: 8px; overflow: hidden; }
+        .sketch-box { border: 2px solid var(--ttu-purple); border-radius: 8px; padding: 20px; height: 100%; background: #f8f9fa; }
         .clean-link { text-decoration: none; color: inherit; }
         .clean-link:hover { text-decoration: underline; }
-        .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        
+        .btn-ttu { background-color: var(--ttu-purple); color: white; border: none; }
+        .btn-ttu:hover { background-color: #3b1c63; color: white; }
+        .btn-ttu-outline { border: 2px solid var(--ttu-purple); color: var(--ttu-purple); }
+        .btn-ttu-outline:hover { background-color: var(--ttu-purple); color: white; }
+
+        .auth-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
         .auth-overlay.active { display: flex; }
+        
+        .event-status-active { color: #198754; font-weight: bold; }
+        .event-status-ended { color: #dc3545; font-weight: bold; }
+        .event-status-full { color: #fd7e14; }
     </style>
 </head>
 <body>
 
 <div class="container mt-5">
-    <div class="row align-items-center mb-4 pb-3 border-bottom border-dark">
-        <div class="col-auto"><div class="logo-box">
-            <img src="https://www.tntech.edu/digitalswag/images/gifs/Animated_Graphic_T-Eagle_Logo.gif" style="width:45px;height:45px;"  alt="TTU Logo">
+    <div class="row align-items-center mb-4 pb-3 border-bottom border-dark" id="headerRow">
+        <div class="col-auto">
+            <div class="logo-box">
+                <img src="https://www.tntech.edu/digitalswag/images/gifs/Animated_Graphic_T-Eagle_Logo.gif" style="width:100%;height:100%;object-fit:cover;" alt="TTU Logo">
+            </div>
         </div>
+        <div class="col">
+            <h4 class="mb-0" id="siteTitle">TTU Rockwall <span id="roleBadge" class="badge bg-warning text-dark d-none ms-2">Admin Mode</span></h4>
         </div>
-        <div class="col"><h4 class="mb-0">TTU Rockwall</h4></div>
-        <div class="col-auto"><button id="loginBtn" class="btn btn-outline-dark px-4">Login</button></div>
+        <div class="col-auto">
+            <button id="loginBtn" class="btn btn-ttu-outline px-4">Login</button>
+            <button id="logoutBtn" class="btn btn-danger px-4 d-none">Logout</button>
+        </div>
     </div>
 
     <div class="row mb-5 text-center">
         <div class="col-md-4 mb-3">
             <div class="sketch-box d-flex flex-column justify-content-center">
                 <h5>Current Visitors:</h5>
-                <a href="#" id="visitorsLink" class="fs-2 text-info text-decoration-none">8 / 20</a>
+                <a href="#" id="visitorsLink" class="fs-2 text-info text-decoration-none"><span id="activeCount">0</span> / <span id="maxCapacity">20</span></a>
+                <small class="text-muted mt-2" id="capacityRefreshText">Auto-refreshes every 5 mins</small>
             </div>
         </div>
+        
         <div class="col-md-4 mb-3">
-            <div class="sketch-box d-flex align-items-center justify-content-center">
-                <button id="signupBtn" class="btn text-success border border-success rounded-pill px-4 py-2">Signup for priority access</button>
+            <div class="sketch-box d-flex flex-column align-items-center justify-content-center gap-2">
+                <button id="signupBtn" class="btn btn-success rounded-pill px-4 py-2 w-100">Priority Access / Appointment</button>
+                <button id="boulderSettingsBtn" class="btn btn-secondary rounded-pill px-4 py-2 w-100 d-none">Manage Boulder Settings</button>
             </div>
         </div>
+        
         <div class="col-md-4 mb-3">
             <div class="sketch-box text-start">
                 <h5 class="mb-3">Upcoming Events:</h5>
-                <ul class="list-unstyled mb-0">
-                    <li class="mb-2">- <a href="https://recreation.tntech.edu/Program?classificationId=41963321-bd55-41c8-af8e-cd07559ba06b" target="_blank" class="clean-link">Bouldering Basics: 4:00 pm</a></li>
-                    <li>- <a href="https://recreation.tntech.edu/Program?classificationId=41963321-bd55-41c8-af8e-cd07559ba06b" target="_blank" class="clean-link">Top Rope Belay Clinic: 6:00 pm</a></li>
+                <ul class="list-unstyled mb-0" id="upcomingEventsList">
+                    <li>Loading events...</li>
                 </ul>
             </div>
         </div>
@@ -59,272 +97,316 @@
 </div>
 
 <div class="auth-overlay" id="authOverlay">
-    <form class="card col-12 col-md-6 col-lg-4" id="frmLogin">
-        <div class="card-body">
-            <h1 class="text-center mb-4">Login</h1>
-            <input id="txtLoginEmail" class="form-control" type="email" placeholder="Email" aria-label="email">
-            <input id="txtLoginPassword" class="form-control mt-2" type="password" placeholder="Password" aria-label="password">
-            <button class="btn btn-primary col-12 mt-3" type="button" id="btnLogin">Log In</button>
-            <button class="btn btn-link col-12 mt-1" type="button" id="btnSwapRegister">Need an account?</button>
-            <button class="btn btn-link col-12" type="button" id="btnCloseAuth">Cancel</button>
+    <form class="card col-12 col-md-6 col-lg-4 shadow-lg border-0" id="frmLogin">
+        <div class="card-body p-5">
+            <h2 class="text-center mb-4" style="color: var(--ttu-purple);">Login</h2>
+            <p class="text-center text-muted small">Use <strong>admin@tntech.edu</strong> for Admin view</p>
+            <input id="txtLoginEmail" class="form-control mb-3" type="email" placeholder="Email (e.g. student@tntech.edu)" aria-label="email">
+            <input id="txtLoginPassword" class="form-control mb-3" type="password" placeholder="Password" aria-label="password">
+            <button class="btn btn-ttu w-100 mb-2 py-2" type="button" id="btnLogin">Log In</button>
+            <button class="btn btn-link w-100 text-decoration-none" type="button" id="btnSwapRegister">Need an account? Register</button>
+            <button class="btn btn-secondary w-100 mt-3" type="button" id="btnCloseAuth">Cancel</button>
         </div>
     </form>
 
-    <form class="card col-12 col-md-6 col-lg-4" id="frmRegister" style="display:none;">
-        <div class="card-body">
-            <h1 class="text-center mb-4">Register Account</h1>
-            <input id="txtFirstName" class="form-control mt-2" type="text" placeholder="First Name" aria-label="first name">
-            <input id="txtLastName" class="form-control mt-2" type="text" placeholder="Last Name" aria-label="last name">
-            <input id="txtPhone" class="form-control mt-2" type="tel" placeholder="Phone Number" aria-label="phone number">
-            <input id="txtRegisterEmail" class="form-control mt-4" type="email" placeholder="Email" aria-label="email">
-            <input id="txtRegisterPassword" class="form-control mt-2" type="password" placeholder="Password" aria-label="password">
-            <button class="btn btn-primary col-12 mt-3" type="button" id="btnRegister">Register</button>
-            <button class="btn btn-link col-12 mt-1" type="button" id="btnSwapLogin">Back to Login</button>
-        </div>
-    </form>
-
-    <div class="card col-12 col-md-8 col-lg-6" id="divDashboard" style="display:none;">
-        <div class="card-body">
-            <h1 class="text-center mb-4">Rock Wall</h1>
-            <div class="d-flex gap-2 mb-3">
-                <button class="btn btn-secondary col" type="button" id="btnShowAvailability">Check Availability</button>
-                <button class="btn btn-secondary col" type="button" id="btnShowSchedule">Schedule</button>
-                <button class="btn btn-outline-danger col-auto" type="button" id="btnCloseOverlay">Close</button>
+    <form class="card col-12 col-md-6 col-lg-4 shadow-lg border-0" id="frmRegister" style="display:none;">
+        <div class="card-body p-5">
+            <h2 class="text-center mb-4" style="color: var(--ttu-purple);">Register Account</h2>
+            <div class="row">
+                <div class="col-6 mb-3"><input id="txtFirstName" class="form-control" type="text" placeholder="First Name"></div>
+                <div class="col-6 mb-3"><input id="txtLastName" class="form-control" type="text" placeholder="Last Name"></div>
             </div>
-            <div id="card1">
+            <input id="txtPhone" class="form-control mb-3" type="tel" placeholder="Phone Number">
+            <input id="txtRegisterEmail" class="form-control mb-3" type="email" placeholder="Email">
+            <input id="txtRegisterPassword" class="form-control mb-3" type="password" placeholder="Password">
+            <button class="btn btn-ttu w-100 mb-2 py-2" type="button" id="btnRegister">Register</button>
+            <button class="btn btn-link w-100 text-decoration-none" type="button" id="btnSwapLogin">Back to Login</button>
+        </div>
+    </form>
+
+    <div class="card col-12 col-md-8 col-lg-6 shadow-lg border-0" id="divDashboard" style="display:none;">
+        <div class="card-body p-4">
+            <h2 class="text-center mb-4" style="color: var(--ttu-purple);">Student Dashboard</h2>
+            <div class="d-flex gap-2 mb-4">
+                <button class="btn btn-ttu col" type="button" id="btnShowAvailability">Check Availability</button>
+                <button class="btn btn-ttu col" type="button" id="btnShowSchedule">Schedule Appointment</button>
+            </div>
+            
+            <div id="card1" class="bg-light p-3 rounded border">
                 <h5 class="mb-3">Check Availability</h5>
-                <input id="txtCheckDate" class="form-control mt-2" type="date" aria-label="date">
-                <button class="btn btn-primary col-12 mt-3" type="button" id="btnCheckAvailability">Check</button>
-                <p id="pAvailability" class="mt-3"></p>
+                <input id="txtCheckDate" class="form-control mb-3" type="date">
+                <button class="btn btn-primary w-100" type="button" id="btnCheckAvailability">Check</button>
+                <p id="pAvailability" class="mt-3 text-center fw-bold"></p>
             </div>
-            <div id="card2" class="d-none">
-                <h5 class="mb-3">Schedule Appointment</h5>
-                <input id="txtApptName" class="form-control mt-2" type="text" placeholder="Full Name" aria-label="full name">
-                <input id="txtApptDate" class="form-control mt-2" type="date" aria-label="appointment date">
-                <input id="txtApptTime" class="form-control mt-2" type="time" aria-label="appointment time">
-                <button class="btn btn-primary col-12 mt-3" type="button" id="btnSaveAppointment">Book Appointment</button>
+            
+            <div id="card2" class="d-none bg-light p-3 rounded border">
+                <h5 class="mb-3">Book Priority Access</h5>
+                <input id="txtApptName" class="form-control mb-3" type="text" placeholder="Full Name">
+                <input id="txtApptDate" class="form-control mb-3" type="date">
+                <input id="txtApptTime" class="form-control mb-3" type="time">
+                <select id="selInstructorClass" class="form-select mb-3">
+                    <option value="">-- Select Instructor Class (Optional) --</option>
+                    <option value="bouldering">Bouldering Basics</option>
+                    <option value="toprope">Top Rope Clinic</option>
+                </select>
+                <button class="btn btn-success w-100" type="button" id="btnSaveAppointment">Book Appointment</button>
             </div>
+            <button class="btn btn-outline-danger w-100 mt-4" type="button" id="btnCloseOverlay">Close Dashboard</button>
         </div>
     </div>
+</div>
+
+<div class="d-flex justify-content-center mt-5 mb-5">
+    <img src="https://www.tntech.edu/recreation/images/outdoor/IMG_7703.jpg" class="rounded shadow" alt="TTU rockwall image" style="max-width: 1000px; width: 100%; height: auto;">
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
+    // --- Global State ---
+    let isAdmin = false;
+    let maxCapacity = 20;
+    
+    // Mocking active climbers list
+    let activeClimbers = [
+        { id: 1, name: "Guest 1", timeEntry: new Date(Date.now() - 4500000) }, // 1h 15m ago
+        { id: 2, name: "Guest 2", timeEntry: new Date(Date.now() - 2700000) }, // 45m ago
+        { id: 3, name: "Guest 3", timeEntry: new Date(Date.now() - 7200000) }, // 2h ago
+        { id: 4, name: "Guest 4", timeEntry: new Date(Date.now() - 600000) }   // 10m ago
+    ];
+
+    // --- Dynamic Events Logic ---
+    function updateUpcomingEvents() {
+        const now = new Date();
+        const eventsListContainer = document.getElementById('upcomingEventsList');
+        eventsListContainer.innerHTML = '';
+
+        // Mock events. In a real app, this would be a fetch() call.
+        const mockEvents = [
+            { name: "Top Rope Belay with Eagles Outdoors", startTime: new Date(now.getTime() - 10 * 60000), endTime: new Date(now.getTime() + 50 * 60000), spotsTotal: 10, spotsFilled: 4, link: "#" }, // Started 10 mins ago
+            { name: "Bouldering Basics", startTime: new Date(now.getTime() - 120 * 60000), endTime: new Date(now.getTime() - 20 * 60000), spotsTotal: 15, spotsFilled: 15, nextDate: "May 5, 2026", link: "#" }, // Ended 20 mins ago
+            { name: "Lead Climbing Clinic", startTime: new Date(now.getTime() + 180 * 60000), endTime: new Date(now.getTime() + 240 * 60000), spotsTotal: 8, spotsFilled: 8, nextDate: "May 2, 2026", link: "#" }, // Full, in future
+            { name: "Open Climb Instruction", startTime: new Date(now.getTime() + 300 * 60000), endTime: new Date(now.getTime() + 360 * 60000), spotsTotal: 20, spotsFilled: 12, link: "#" } // Future, open
+        ];
+
+        mockEvents.forEach(event => {
+            let statusHTML = '';
+            let isPastEndedBuffer = (now.getTime() - event.endTime.getTime()) > (30 * 60000); // 30 mins after end
+
+            if (now >= event.startTime && now <= event.endTime) {
+                statusHTML = `<span class="event-status-active">Active now!</span>`;
+            } else if (now > event.endTime && !isPastEndedBuffer) {
+                statusHTML = `<span class="event-status-ended">Just ended!</span>`;
+            } else if (now > event.endTime && isPastEndedBuffer) {
+                return; // Skip rendering old events
+            } else {
+                let spotsLeft = event.spotsTotal - event.spotsFilled;
+                if (spotsLeft > 0) {
+                    statusHTML = `<span class="text-success">${spotsLeft} Spots left!</span>`;
+                } else {
+                    statusHTML = `<span class="event-status-full">Full! Next: ${event.nextDate}</span>`;
+                }
+            }
+
+            eventsListContainer.innerHTML += `
+                <li class="mb-3 border-bottom pb-2">
+                    <a href="${event.link}" target="_blank" class="clean-link fw-bold">${event.name}</a><br>
+                    <small>${statusHTML}</small>
+                </li>
+            `;
+        });
+        
+        if(eventsListContainer.innerHTML === '') {
+            eventsListContainer.innerHTML = '<li>No upcoming events today.</li>';
+        }
+    }
+
+    // --- Capacity & Climbers Logic ---
+    function formatActiveTime(entryDate) {
+        let diffMs = new Date() - entryDate;
+        let diffHrs = Math.floor((diffMs % 86400000) / 3600000);
+        let diffMins = Math.round(((diffMs % 86400000) % 3600000) / 60000);
+        return `${diffHrs}h ${diffMins}m`;
+    }
+
+    function updateCapacityUI() {
+        document.getElementById('activeCount').innerText = activeClimbers.length;
+        document.getElementById('maxCapacity').innerText = maxCapacity;
+    }
+
+    // --- Global Refresh Interval (Every 5 minutes) ---
+    function performAutoRefresh() {
+        updateDateTime();
+        updateUpcomingEvents();
+        updateCapacityUI();
+        console.log("Data auto-refreshed.");
+    }
+    setInterval(performAutoRefresh, 300000); // 5 minutes
+
+    // --- UI Updaters ---
     function updateDateTime() {
-        const now = new Date()
-        const dateString = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })
-        const timeString = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })
-        document.getElementById('currentDateTime').innerText = `${dateString} | ${timeString}`
-    }
-    updateDateTime()
-    setInterval(updateDateTime, 60000)
-
-    function resetOverlay() {
-        document.querySelector('#frmLogin').style.display = 'block'
-        document.querySelector('#frmRegister').style.display = 'none'
-        document.querySelector('#divDashboard').style.display = 'none'
-        document.querySelector('#card1').classList.remove('d-none')
-        document.querySelector('#card2').classList.add('d-none')
+        const now = new Date();
+        const dateString = now.toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const timeString = now.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+        document.getElementById('currentDateTime').innerText = `${dateString} | ${timeString}`;
     }
 
-    function openOverlay() {
-        resetOverlay()
-        document.getElementById('authOverlay').classList.add('active')
+    // --- Overlays and Forms ---
+    function openOverlay(targetForm) {
+        document.getElementById('frmLogin').style.display = 'none';
+        document.getElementById('frmRegister').style.display = 'none';
+        document.getElementById('divDashboard').style.display = 'none';
+        
+        if(targetForm) document.getElementById(targetForm).style.display = 'block';
+        document.getElementById('authOverlay').classList.add('active');
     }
 
     function closeOverlay() {
-        document.getElementById('authOverlay').classList.remove('active')
+        document.getElementById('authOverlay').classList.remove('active');
     }
 
-    document.getElementById('loginBtn').addEventListener('click', openOverlay)
-    document.getElementById('btnCloseAuth').addEventListener('click', closeOverlay)
-    document.getElementById('btnCloseOverlay').addEventListener('click', closeOverlay)
+    // Event Listeners for UI
+    document.getElementById('loginBtn').addEventListener('click', () => openOverlay('frmLogin'));
+    document.getElementById('btnCloseAuth').addEventListener('click', closeOverlay);
+    document.getElementById('btnCloseOverlay').addEventListener('click', closeOverlay);
+    
+    document.querySelector('#btnSwapRegister').addEventListener('click', () => openOverlay('frmRegister'));
+    document.querySelector('#btnSwapLogin').addEventListener('click', () => openOverlay('frmLogin'));
 
-    document.querySelector('#btnSwapRegister').addEventListener('click', function(){
-        document.querySelector('#frmLogin').style.display = 'none'
-        document.querySelector('#frmRegister').style.display = 'block'
-    })
-
-    document.querySelector('#btnSwapLogin').addEventListener('click', function(){
-        document.querySelector('#frmRegister').style.display = 'none'
-        document.querySelector('#frmLogin').style.display = 'block'
-    })
-
+    // --- Login Logic (Admin vs Student Check) ---
     document.querySelector('#btnLogin').addEventListener('click', function(){
-        let strEmail = document.querySelector('#txtLoginEmail').value.trim()
-        let strPassword = document.querySelector('#txtLoginPassword').value.trim()
+        let email = document.querySelector('#txtLoginEmail').value.trim().toLowerCase();
+        let password = document.querySelector('#txtLoginPassword').value.trim();
 
-        let blnError = false
-        let strError = ''
-
-        if(strEmail == ''){ blnError = true; strError += '<p>You must enter your email</p>' }
-        if(strPassword == ''){ blnError = true; strError += '<p>You must enter your password</p>' }
-
-        if(blnError == true){
-            Swal.fire({ title: 'You are missing required info:', html: strError, icon: 'warning', confirmButtonColor: '#b60f0fff' })
-        } else if(blnError == false){
-            fetch('http://localhost:8000/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email: strEmail, password: strPassword })
-            })
-            .then(response => response.json())
-            .then(data => {
-                document.querySelector('#frmLogin').style.display = 'none'
-                document.querySelector('#divDashboard').style.display = 'block'
-            })
+        if(!email || !password){
+            Swal.fire('Missing Info', 'Please enter email and password', 'warning');
+            return;
         }
-    })
 
-    document.querySelector('#btnRegister').addEventListener('click', function(){
-        let strFirstName = document.querySelector('#txtFirstName').value.trim()
-        let strLastName = document.querySelector('#txtLastName').value.trim()
-        let strPhone = document.querySelector('#txtPhone').value.trim()
-        let strEmail = document.querySelector('#txtRegisterEmail').value.trim()
-        let strPassword = document.querySelector('#txtRegisterPassword').value.trim()
-
-        let blnError = false
-        let strError = ''
-
-        if(strFirstName == ''){ blnError = true; strError += '<p>You must enter your first name</p>' }
-        if(strLastName == ''){ blnError = true; strError += '<p>You must enter your last name</p>' }
-        if(strPhone == ''){ blnError = true; strError += '<p>You must enter your phone number</p>' }
-        if(strEmail == ''){ blnError = true; strError += '<p>You must enter your email</p>' }
-        if(strPassword == ''){ blnError = true; strError += '<p>You must enter a password</p>' }
-
-        if(blnError == true){
-            Swal.fire({ title: 'You are missing required info:', html: strError, icon: 'warning', confirmButtonColor: '#b60f0fff' })
-        } else if(blnError == false){
-            fetch('http://localhost:8000/register', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ firstname: strFirstName, lastname: strLastName, phone: strPhone, email: strEmail, password: strPassword })
-            })
-            .then(response => response.json())
-            .then(data => {
-                Swal.fire({ title: 'Account Created Successfully!', icon: 'success', confirmButtonColor: '#189b23a9' })
-                document.querySelector('#frmRegister').style.display = 'none'
-                document.querySelector('#frmLogin').style.display = 'block'
-            })
+        // Determine Admin vs Student
+        if(email === 'admin@tntech.edu') {
+            isAdmin = true;
+            document.body.classList.add('admin-theme');
+            document.getElementById('roleBadge').classList.remove('d-none');
+            document.getElementById('boulderSettingsBtn').classList.remove('d-none'); // Show admin schedule settings
+            
+            Swal.fire({ title: 'Admin Logged In', text: 'Welcome to the Admin Dashboard', icon: 'success', timer: 1500 });
+        } else {
+            isAdmin = false;
+            document.body.classList.remove('admin-theme');
+            document.getElementById('roleBadge').classList.add('d-none');
+            document.getElementById('boulderSettingsBtn').classList.add('d-none');
+            openOverlay('divDashboard'); // Show student dashboard
+            return; // Skip auto-close for student so they see dashboard
         }
-    })
+        
+        // Swap login button for logout
+        document.getElementById('loginBtn').classList.add('d-none');
+        document.getElementById('logoutBtn').classList.remove('d-none');
+        closeOverlay();
+    });
 
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+        isAdmin = false;
+        document.body.classList.remove('admin-theme');
+        document.getElementById('roleBadge').classList.add('d-none');
+        document.getElementById('loginBtn').classList.remove('d-none');
+        document.getElementById('logoutBtn').classList.add('d-none');
+        document.getElementById('boulderSettingsBtn').classList.add('d-none');
+        Swal.fire('Logged out', '', 'info');
+    });
+
+    // --- Visitor List Modal (Allows Admin Removal) ---
     document.getElementById('visitorsLink').addEventListener('click', function(e) {
-        e.preventDefault()
-        Swal.fire({
-            title: 'Active Climbers (Prototype)',
-            html: `<div style="text-align:left;">
-                <p><strong>Guest 1</strong> - Active time: 1h15m</p>
-                <p><strong>Guest 2</strong> - Active time: 0h45m</p>
-                <p><strong>Guest 3</strong> - Active time: 2h00m</p>
-                <p><strong>Guest 4</strong> - Active time: 0h10m</p>
-                <p><strong>Guest 5</strong> - Active time: 1h30m</p>
-                <p><strong>Guest 6</strong> - Active time: 0h25m</p>
-                <p><strong>Guest 7</strong> - Active time: 1h05m</p>
-                <p><strong>Guest 8</strong> - Active time: 0h55m</p>
-            </div>`,
-            confirmButtonText: 'Close'
-        })
-    })
+        e.preventDefault();
+        
+        let htmlList = `<div class="text-start"><ul class="list-group">`;
+        if (activeClimbers.length === 0) {
+            htmlList += `<li class="list-group-item">No active climbers.</li>`;
+        } else {
+            activeClimbers.forEach((guest, index) => {
+                htmlList += `
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <div>
+                        <strong>${guest.name}</strong><br>
+                        <small class="text-muted">Active: ${formatActiveTime(guest.timeEntry)}</small>
+                    </div>
+                    ${isAdmin ? `<button class="btn btn-sm btn-danger remove-guest-btn" data-index="${index}">Sign Out</button>` : ''}
+                </li>`;
+            });
+        }
+        htmlList += `</ul></div>`;
 
+        Swal.fire({
+            title: isAdmin ? 'Manage Active Climbers' : 'Active Climbers',
+            html: htmlList,
+            showCloseButton: true,
+            showConfirmButton: false,
+            didOpen: () => {
+                // Attach event listeners for admin sign-out buttons
+                if(isAdmin) {
+                    const buttons = document.querySelectorAll('.remove-guest-btn');
+                    buttons.forEach(btn => {
+                        btn.addEventListener('click', function() {
+                            const idx = this.getAttribute('data-index');
+                            activeClimbers.splice(idx, 1); // Remove guest, incrementing available capacity
+                            updateCapacityUI();
+                            Swal.close();
+                            Swal.fire('Guest Signed Out', 'Capacity has been updated.', 'success');
+                        });
+                    });
+                }
+            }
+        });
+    });
+
+    // --- Dashboard Toggles & Fake Bookings ---
     document.getElementById('signupBtn').addEventListener('click', function() {
-        openOverlay()
-        document.querySelector('#frmLogin').style.display = 'none'
-        document.querySelector('#divDashboard').style.display = 'block'
-        document.querySelector('#card1').classList.add('d-none')
-        document.querySelector('#card2').classList.remove('d-none')
-    })
+        openOverlay('divDashboard');
+        document.querySelector('#card1').classList.add('d-none');
+        document.querySelector('#card2').classList.remove('d-none');
+    });
 
     document.querySelector('#btnShowAvailability').addEventListener('click', function(){
-        document.querySelector('#card1').classList.remove('d-none')
-        document.querySelector('#card2').classList.add('d-none')
-    })
+        document.querySelector('#card1').classList.remove('d-none');
+        document.querySelector('#card2').classList.add('d-none');
+    });
 
     document.querySelector('#btnShowSchedule').addEventListener('click', function(){
-        document.querySelector('#card1').classList.add('d-none')
-        document.querySelector('#card2').classList.remove('d-none')
-    })
+        document.querySelector('#card1').classList.add('d-none');
+        document.querySelector('#card2').classList.remove('d-none');
+    });
 
     document.querySelector('#btnCheckAvailability').addEventListener('click', function(){
-        let strCheckDate = document.querySelector('#txtCheckDate').value.trim()
-
-        let blnError = false
-        let strError = ''
-
-        if(strCheckDate == ''){ blnError = true; strError += '<p>You must select a date</p>' }
-
-        if(blnError == true){
-            Swal.fire({ title: 'You are missing required info:', html: strError, icon: 'warning', confirmButtonColor: '#b60f0fff' })
-        } else if(blnError == false){
-            fetch('http://localhost:8000/availability?date=' + strCheckDate, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' }
-            })
-            .then(response => response.json())
-            .then(data => { document.querySelector('#pAvailability').innerHTML = data.message })
+        let date = document.querySelector('#txtCheckDate').value;
+        if(date) {
+            document.querySelector('#pAvailability').innerHTML = `<span class="text-success">Time slots available for ${date}!</span>`;
+        } else {
+            Swal.fire('Error', 'Please select a date', 'error');
         }
-    })
+    });
 
     document.querySelector('#btnSaveAppointment').addEventListener('click', function(){
-        let strName = document.querySelector('#txtApptName').value.trim()
-        let strDate = document.querySelector('#txtApptDate').value.trim()
-        let strTime = document.querySelector('#txtApptTime').value.trim()
-
-        let blnError = false
-        let strError = ''
-
-        if(strName == ''){ blnError = true; strError += '<p>You must enter your name</p>' }
-        if(strDate == ''){ blnError = true; strError += '<p>You must select a date</p>' }
-        if(strTime == ''){ blnError = true; strError += '<p>You must select a time</p>' }
-
-        if(blnError == true){
-            Swal.fire({ title: 'You are missing required info:', html: strError, icon: 'warning', confirmButtonColor: '#b60f0fff' })
-        } else if(blnError == false){
-            fetch('http://localhost:8000/appointments', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ name: strName, date: strDate, time: strTime })
-            })
-            .then(response => response.json())
-            .then(data => {
-                Swal.fire({ title: 'Appointment Booked Successfully!', icon: 'success', confirmButtonColor: '#189b23a9' })
-                document.querySelector('#card2').querySelectorAll('input').forEach(input => input.value = '')
-            })
+        let name = document.querySelector('#txtApptName').value.trim();
+        let date = document.querySelector('#txtApptDate').value;
+        if(name && date) {
+            // Decrement available capacity with new appointment by pushing to list
+            activeClimbers.push({ id: Date.now(), name: name, timeEntry: new Date() });
+            updateCapacityUI();
+            
+            Swal.fire('Success', 'Appointment Booked. Capacity updated.', 'success');
+            document.querySelectorAll('#card2 input, #card2 select').forEach(el => el.value = '');
+            closeOverlay();
+        } else {
+            Swal.fire('Error', 'Missing required appointment fields', 'error');
         }
-    })
+    });
 
-    document.getElementById('fullHoursBtn').addEventListener('click', function(e) {
-        e.preventDefault()
-        Swal.fire({
-            title: 'Rockwall Active Hours',
-            html: `<table class="table table-bordered text-start mt-3"><tbody>
-                <tr><th>Monday</th><td>3 PM - 8 PM</td></tr>
-                <tr><th>Tuesday</th><td>3 PM - 8 PM</td></tr>
-                <tr><th>Wednesday</th><td>3 PM - 8 PM</td></tr>
-                <tr><th>Thursday</th><td>3 PM - 8 PM</td></tr>
-                <tr><th>Friday</th><td>2 PM - 6 PM</td></tr>
-                <tr><th>Saturday</th><td>2 PM - 6 PM</td></tr>
-                <tr><th>Sunday</th><td>Closed</td></tr>
-            </tbody></table>`,
-            confirmButtonText: 'Close'
-        })
-    })
+    // Initialization
+    updateDateTime();
+    updateUpcomingEvents();
+    updateCapacityUI();
+
 </script>
-<div class="d-flex justify-content-center">
-    <img src="https://www.tntech.edu/recreation/images/outdoor/IMG_7703.jpg" alt="TTU rockwall image" style="width:1000px;height:auto;">
-</div>
 </body>
-=======
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rockwall</title>
-</head>
-<body>
-    
-</body>
->>>>>>> Stashed changes
 </html>
