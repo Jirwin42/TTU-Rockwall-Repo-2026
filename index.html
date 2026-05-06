@@ -92,7 +92,7 @@
     <div class="row align-items-center pt-3 border-top border-dark">
         <div class="col-md-4 text-start"><span id="currentDateTime" class="fw-bold"></span></div>
         <div class="col-md-4 text-center"><span class="fw-bold">Today's Hours: 3 PM - 8 PM</span></div>
-        <div class="col-md-4 text-end"><a href="#" id="fullHoursBtn" class="clean-link text-primary fw-bold">Full Active Hours</a></div>
+        <div class="col-md-4 text-end"><a href="https://www.tntech.edu/recreation/hours.php" id="fullHoursBtn" target="_blank" class="clean-link text-primary fw-bold">Full Active Hours</a></div>
     </div>
 </div>
 
@@ -181,24 +181,26 @@
         const eventsListContainer = document.getElementById('upcomingEventsList');
         eventsListContainer.innerHTML = '';
 
-        // Mock events. In a real app, this would be a fetch() call.
+        // Added TTU recreation links to mock events
+        const eventUrl = "https://recreation.tntech.edu/program?classificationId=41963321-bd55-41c8-af8e-cd07559ba06b";
+        
         const mockEvents = [
-            { name: "Top Rope Belay with Eagles Outdoors", startTime: new Date(now.getTime() - 10 * 60000), endTime: new Date(now.getTime() + 50 * 60000), spotsTotal: 10, spotsFilled: 4, link: "#" }, // Started 10 mins ago
-            { name: "Bouldering Basics", startTime: new Date(now.getTime() - 120 * 60000), endTime: new Date(now.getTime() - 20 * 60000), spotsTotal: 15, spotsFilled: 15, nextDate: "May 5, 2026", link: "#" }, // Ended 20 mins ago
-            { name: "Lead Climbing Clinic", startTime: new Date(now.getTime() + 180 * 60000), endTime: new Date(now.getTime() + 240 * 60000), spotsTotal: 8, spotsFilled: 8, nextDate: "May 2, 2026", link: "#" }, // Full, in future
-            { name: "Open Climb Instruction", startTime: new Date(now.getTime() + 300 * 60000), endTime: new Date(now.getTime() + 360 * 60000), spotsTotal: 20, spotsFilled: 12, link: "#" } // Future, open
+            { name: "Top Rope Belay with Eagles Outdoors", startTime: new Date(now.getTime() - 10 * 60000), endTime: new Date(now.getTime() + 50 * 60000), spotsTotal: 10, spotsFilled: 4, link: eventUrl },
+            { name: "Bouldering Basics", startTime: new Date(now.getTime() - 120 * 60000), endTime: new Date(now.getTime() - 20 * 60000), spotsTotal: 15, spotsFilled: 15, nextDate: "May 5, 2026", link: eventUrl },
+            { name: "Lead Climbing Clinic", startTime: new Date(now.getTime() + 180 * 60000), endTime: new Date(now.getTime() + 240 * 60000), spotsTotal: 8, spotsFilled: 8, nextDate: "May 2, 2026", link: eventUrl },
+            { name: "Open Climb Instruction", startTime: new Date(now.getTime() + 300 * 60000), endTime: new Date(now.getTime() + 360 * 60000), spotsTotal: 20, spotsFilled: 12, link: eventUrl } 
         ];
 
         mockEvents.forEach(event => {
             let statusHTML = '';
-            let isPastEndedBuffer = (now.getTime() - event.endTime.getTime()) > (30 * 60000); // 30 mins after end
+            let isPastEndedBuffer = (now.getTime() - event.endTime.getTime()) > (30 * 60000); 
 
             if (now >= event.startTime && now <= event.endTime) {
                 statusHTML = `<span class="event-status-active">Active now!</span>`;
             } else if (now > event.endTime && !isPastEndedBuffer) {
                 statusHTML = `<span class="event-status-ended">Just ended!</span>`;
             } else if (now > event.endTime && isPastEndedBuffer) {
-                return; // Skip rendering old events
+                return; 
             } else {
                 let spotsLeft = event.spotsTotal - event.spotsFilled;
                 if (spotsLeft > 0) {
@@ -241,7 +243,7 @@
         updateCapacityUI();
         console.log("Data auto-refreshed.");
     }
-    setInterval(performAutoRefresh, 300000); // 5 minutes
+    setInterval(performAutoRefresh, 300000);
 
     // --- UI Updaters ---
     function updateDateTime() {
@@ -283,12 +285,11 @@
             return;
         }
 
-        // Determine Admin vs Student
         if(email === 'admin@tntech.edu') {
             isAdmin = true;
             document.body.classList.add('admin-theme');
             document.getElementById('roleBadge').classList.remove('d-none');
-            document.getElementById('boulderSettingsBtn').classList.remove('d-none'); // Show admin schedule settings
+            document.getElementById('boulderSettingsBtn').classList.remove('d-none'); 
             
             Swal.fire({ title: 'Admin Logged In', text: 'Welcome to the Admin Dashboard', icon: 'success', timer: 1500 });
         } else {
@@ -296,11 +297,10 @@
             document.body.classList.remove('admin-theme');
             document.getElementById('roleBadge').classList.add('d-none');
             document.getElementById('boulderSettingsBtn').classList.add('d-none');
-            openOverlay('divDashboard'); // Show student dashboard
-            return; // Skip auto-close for student so they see dashboard
+            openOverlay('divDashboard'); 
+            return; 
         }
         
-        // Swap login button for logout
         document.getElementById('loginBtn').classList.add('d-none');
         document.getElementById('logoutBtn').classList.remove('d-none');
         closeOverlay();
@@ -343,13 +343,12 @@
             showCloseButton: true,
             showConfirmButton: false,
             didOpen: () => {
-                // Attach event listeners for admin sign-out buttons
                 if(isAdmin) {
                     const buttons = document.querySelectorAll('.remove-guest-btn');
                     buttons.forEach(btn => {
                         btn.addEventListener('click', function() {
                             const idx = this.getAttribute('data-index');
-                            activeClimbers.splice(idx, 1); // Remove guest, incrementing available capacity
+                            activeClimbers.splice(idx, 1);
                             updateCapacityUI();
                             Swal.close();
                             Swal.fire('Guest Signed Out', 'Capacity has been updated.', 'success');
@@ -390,7 +389,6 @@
         let name = document.querySelector('#txtApptName').value.trim();
         let date = document.querySelector('#txtApptDate').value;
         if(name && date) {
-            // Decrement available capacity with new appointment by pushing to list
             activeClimbers.push({ id: Date.now(), name: name, timeEntry: new Date() });
             updateCapacityUI();
             
