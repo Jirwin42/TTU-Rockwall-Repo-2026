@@ -12,6 +12,9 @@ A sentence or two describing why this table exists, and what information it hold
 column1 - column2 - column3 - etc...
 #Note - Exists to elaborate on a column entry.
 
+-------------------------------------------------------------------
+**Key Syntax Shortcuts**
+
 *Syntax for adding an entry within the above table*
 
 INSERT INTO exampleTable
@@ -28,34 +31,41 @@ WHERE textvalue1 = "456";
 DELETE FROM exampleTable
 WHERE numvale1 = 123;
 
+*Syntax for moving information from one table to another table*
+
+INSERT INTO exampleTable2 (value1, value2)
+SELECT value1a, value2a
+FROM exampleTable1
+WHERE value3 = "123"
+
 --------------------------------------------------------
 
 **tableSignInInfo** - Super-Mod only
 Exists to document info given by those who created appointments to the rockwall via the website, IF entry is unqiue.
 
-Username - TEMPPASSWORD - Last Name - First Name - UniqueID
-#Note - TEMPPASSWORD is likely to be encripted in the live enviroment. However, to ensure more elements of the database work, this is expected to not be encrpyted for now.
+Username - TEMPPASSWORD - LastName - FirstName - UniqueID - UserPhone - UserEmail
+#Note - TEMPPASSWORD is likely to be encrypted in the live enviroment. However, to ensure more elements of the database work, this is expected to not be encrpyted for now. "UserPhone" is an INT for only numbers and "UserEmail" is TEXT, both are optional and can be NULL if not given by the user.
 
 **tableTrustedUsers** - Super-Mod only
 Exists to document Super-Mods and Moderators who have access and are trusted to operate with the database via Web UI. Also includes most recent clock-in for tracking behavior.
 
-UniqueID - Last Name - First Name - Moderator? - Super-Moderator? - Most recent clock-in
+UniqueID - LastName - FirstName - Moderator? - Super-Moderator? - Most_recent_clock-in
 #Note - Moderator/Super-Moderator are binary and default to 0 for new entires, 0 = false and 1 = true. Also the clock-in is relative to use with Web UI, not with Talon or other timeclock software.
 
 **visitorsInQueue** - Moderator and Super-Mod
 When visitors come into the Rockwall, or the applied meeting time triggers in Web UI, visitors are added to the table. Moderators can remove entries as needed to keep Rockwall at 20 max capacity.
 
-Unique ID SignedUp - Unique ID Walk-in - Arrival Time Signed Up - Arrival Time Walk-in
-#Note - There must be AT LEAST either a UniqueID SignedUp OR a Unique ID Walk-in to have an entry, those check the constraint to make sure there's no copies. Arrival Times are set either via appointment from Signed Up or when the user actively walks into the Rockwall. Walk-in IDs are 8 randomized numbers by Web UI.
+UniqueID_SignedUp - UniqueID_Walk-in - Arrival_Time_SignedUp - Arrival_Time_Walk-in
+#Note - Arrival Times are set either via appointment from Signed Up or when the user actively walks into the Rockwall. Walk-in IDs are 8 randomized numbers by Web UI.
 
 **visitorsSignedUp** - Super-Mod only
 Keeps track of the visitors who have used the Web UI to sign up for specific times for the rockwall. More complicated scheduling rules are intended for Web UI work.
 
-UniqueID - Username - Last Name - First Name - Arrival Time
+UniqueID - Username - LastName - FirstName - Arrival_Time
 #Note - Username, Last Name and First name are required entires for data keeping purposes and backend tracking. If requested, user can request either username for full name for viewing on Web UI frontend.
 
 **visitorsWalkIn** - Moderator and Super-Mod
 Keeps track of visitors who physically walk into the rockwall location without an appointment. 
 
-UniqueID - Last Name - First Name - Arrival Time
+UniqueID - LastName - FirstName - Arrival_Time
 #Note - Walk-in IDs are 8 randomized numbers by Web UI. If the walk-in does not provide a name when asked, first name should be "Guest" and last name a incrementing number (1 -> 2 -> 3, etc...). __This table's data is only temp. and should be cleaned out by midnight every night by Web UI__.
